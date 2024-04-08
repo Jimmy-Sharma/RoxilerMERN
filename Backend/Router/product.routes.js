@@ -7,8 +7,8 @@ const productRoute = express.Router()
 
 productRoute.get('/initialize-database', async (req, res) => {
     try {
-        const response = await fetch('https://s3.amazonaws.com/roxiler.com/product_transaction.json');
-        const data = await response.json();
+        let response = await fetch('https://s3.amazonaws.com/roxiler.com/product_transaction.json');
+        let data = await response.json();
         await ProductModel.deleteMany();
         await ProductModel.insertMany(data);
         res.json({ message: 'Database initialized successfully' });
@@ -19,15 +19,15 @@ productRoute.get('/initialize-database', async (req, res) => {
 });
 
 productRoute.get('/products', async (req, res) => {
-    const { month } = req.query
+    let { month } = req.query
 
-    const { search, page = 1, per_page = 10 } = req.query;
+    let { search, page = 1, per_page = 10 } = req.query;
 
     if (month < 10) {
         month = `0${month}`
     }
 
-    const query = {
+    let query = {
         dateOfSale: { $regex: `.*-${month}-.*` },
     };
 
@@ -45,11 +45,11 @@ productRoute.get('/products', async (req, res) => {
     }
 
     try {
-        const skip = (page - 1) * per_page;
+        let skip = (page - 1) * per_page;
 
-        const record = await ProductModel.find(query)
+        let record = await ProductModel.find(query)
 
-        const result = await ProductModel.find(query)
+        let result = await ProductModel.find(query)
             .skip(skip)
             .limit(per_page)
         res.status(200).send({ data: result, totalRecords: record.length })
@@ -61,7 +61,7 @@ productRoute.get('/products', async (req, res) => {
 
 productRoute.get("/statistics", async (req, res) => {
 
-    const { month } = req.query
+    let { month } = req.query
 
 
     try {
@@ -69,19 +69,19 @@ productRoute.get("/statistics", async (req, res) => {
             month = `0${month}`
         }
 
-        const query = {
+        let query = {
             dateOfSale: {
                 $regex: `.*-${month}-.*`,
             }
         }
 
-        const numOfSold = await ProductModel.find({ ...query, sold: true })
+        let numOfSold = await ProductModel.find({ ...query, sold: true })
             .count()
 
-        const numNotSold = await ProductModel.find({ ...query, sold: false })
+        let numNotSold = await ProductModel.find({ ...query, sold: false })
             .count()
 
-        const resultSold = await ProductModel.aggregate([
+        let resultSold = await ProductModel.aggregate([
             {
                 $match: {
                     dateOfSale: {
@@ -100,7 +100,7 @@ productRoute.get("/statistics", async (req, res) => {
             },
         ])
 
-        const resultNotSold = await ProductModel.aggregate([
+        let resultNotSold = await ProductModel.aggregate([
             {
                 $match: {
                     dateOfSale: {
@@ -129,7 +129,7 @@ productRoute.get("/statistics", async (req, res) => {
 
 
 productRoute.get("/barchart", async (req, res) => {
-    const { month } = req.query;
+    let { month } = req.query;
 
     try {
         // Pad month with leading zero if it's a single digit
@@ -138,12 +138,12 @@ productRoute.get("/barchart", async (req, res) => {
         }
 
         // Regular expression to match any year-month combination
-        const query = {
+        let query = {
             dateOfSale: { $regex: `.*-${month}-.*` }
         };
 
         // Initialize an array containing all price ranges with counts set to zero
-        const priceRanges = [
+        let priceRanges = [
             { range: '0 - 100', count: 0 },
             { range: '101 - 200', count: 0 },
             { range: '201 - 300', count: 0 },
@@ -157,7 +157,7 @@ productRoute.get("/barchart", async (req, res) => {
         ];
 
         // Aggregate query to group products by price range
-        const result = await ProductModel.aggregate([
+        let result = await ProductModel.aggregate([
             {
                 $match: query
             },
@@ -190,7 +190,7 @@ productRoute.get("/barchart", async (req, res) => {
         // Update counts based on the actual data retrieved
         result.forEach(({ counts }) => {
             counts.flat().forEach(range => {
-                const index = priceRanges.findIndex(item => item.range === range);
+                let index = priceRanges.findIndex(item => item.range === range);
                 if (index !== -1) {
                     priceRanges[index].count++;
                 }
@@ -207,7 +207,7 @@ productRoute.get("/barchart", async (req, res) => {
 
 productRoute.get('/piechart', async (req, res) => {
 
-    const { month } = req.query
+    let { month } = req.query
 
 
     try {
@@ -216,11 +216,11 @@ productRoute.get('/piechart', async (req, res) => {
             month = `0${month}`
         }
 
-        const query = {
+        let query = {
             dateOfSale: { $regex: `.*-${month}-.*` },
         };
 
-        const result = await ProductModel.aggregate([
+        let result = await ProductModel.aggregate([
             {
                 $match: query,
             },
@@ -232,7 +232,7 @@ productRoute.get('/piechart', async (req, res) => {
             },
         ])
 
-        const chartData = result.reduce((data, { _id, count }) => {
+        let chartData = result.reduce((data, { _id, count }) => {
             data[_id] = count;
             return data;
         }, {});
@@ -247,16 +247,16 @@ productRoute.get('/piechart', async (req, res) => {
 })
 
 productRoute.get("/combinedResponse", async (req, res) => {
-    const { month } = req.query
+    let { month } = req.query
 
     try {
-        const statistics = await axios.get(`https://roxilermern.onrender.com/product/statistics?month=${month}`)
+        let statistics = await axios.get(`https://roxilermern.onrender.com/product/statistics?month=${month}`)
 
-        const bar = await axios.get(`https://roxilermern.onrender.com/product/barchart?month=${month}`)
+        let bar = await axios.get(`https://roxilermern.onrender.com/product/barchart?month=${month}`)
 
-        const pie = await axios.get(`https://roxilermern.onrender.com/product/piechart?month=${month}`)
+        let pie = await axios.get(`https://roxilermern.onrender.com/product/piechart?month=${month}`)
 
-        const combinedData = {
+        let combinedData = {
             statistics: statistics.data,
             bar: bar.data,
             pie: pie.data,
