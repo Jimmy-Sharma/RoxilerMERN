@@ -51,7 +51,7 @@ const BarChart = ({ selectedMonth }) => {
           month = 12;
         }
         const response = await fetch(
-          `http://localhost:7500/product/barchart?month=${month}`
+          `https://roxilermern.onrender.com/product/barchart?month=${month}`
         );
         const data = await response.json();
         console.log('data:-', data)

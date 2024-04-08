@@ -38,7 +38,7 @@ const Statistics = ({ selectedMonth }) => {
           month = 12;
         }
         const response = await fetch(
-          `http://localhost:7500/product/statistics?month=${month}`
+          `https://roxilermern.onrender.com/product/statistics?month=${month}`
         );
         const data = await response.json();
         console.log(data)

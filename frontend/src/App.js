@@ -44,7 +44,7 @@ const App = () => {
         month = 12;
       }
       const response = await axios.get(
-        `http://localhost:7500/product/products`,
+        `https://roxilermern.onrender.com/product/products`,
         {
           params: {
             month,

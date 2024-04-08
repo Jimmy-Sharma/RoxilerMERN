@@ -1,8 +1,7 @@
 const express = require('express')
 require('dotenv').config()
-const mongoose = require('mongoose')
 const ProductModel = require('../Model/product.model')
-
+const { default: axios } = require('axios')
 
 const productRoute = express.Router()
 
@@ -20,7 +19,7 @@ productRoute.get('/initialize-database', async (req, res) => {
 });
 
 productRoute.get('/products', async (req, res) => {
-    let { month } = req.query
+    const { month } = req.query
 
     const { search, page = 1, per_page = 10 } = req.query;
 
@@ -28,7 +27,7 @@ productRoute.get('/products', async (req, res) => {
         month = `0${month}`
     }
 
-    let query = {
+    const query = {
         dateOfSale: { $regex: `.*-${month}-.*` },
     };
 
@@ -62,7 +61,7 @@ productRoute.get('/products', async (req, res) => {
 
 productRoute.get("/statistics", async (req, res) => {
 
-    let { month } = req.query
+    const { month } = req.query
 
 
     try {
@@ -130,7 +129,7 @@ productRoute.get("/statistics", async (req, res) => {
 
 
 productRoute.get("/barchart", async (req, res) => {
-    let { month } = req.query;
+    const { month } = req.query;
 
     try {
         // Pad month with leading zero if it's a single digit
@@ -208,7 +207,7 @@ productRoute.get("/barchart", async (req, res) => {
 
 productRoute.get('/piechart', async (req, res) => {
 
-    let { month } = req.query
+    const { month } = req.query
 
 
     try {
@@ -247,30 +246,24 @@ productRoute.get('/piechart', async (req, res) => {
 
 })
 
-// productRoute.get("/combinedResponse", async (req, res) => {
-//     let { month } = req.query
+productRoute.get("/combinedResponse", async (req, res) => {
+    const { month } = req.query
 
-//     try {
-//         let respStat = await axios.get(`https://roxilerbackend.onrender.com/product/statastic?month=${month}`)
+    try {
+        const statistics = await axios.get(`https://roxilermern.onrender.com/product/statistics?month=${month}`)
 
-//         let respBar = await axios.get(`https://roxilerbackend.onrender.com/product/chart?month=${month}`)
+        const bar = await axios.get(`https://roxilermern.onrender.com/product/barchart?month=${month}`)
 
-//         let respPie = await axios.get(`https://roxilerbackend.onrender.com/product/Pie?month=${month}`)
+        const pie = await axios.get(`https://roxilermern.onrender.com/product/piechart?month=${month}`)
 
-//         const combinedData = {
-//             statastic: respStat.data,
-//             bar: respBar.data,
-//             pie: respPie.data,
-//         };
-
-//         res.status(200).send(combinedData)
-
-
-//     } catch (err) {
-//         res.status(400).send({ err: err.message })
-
-//     }
-
-
-// })
+        const combinedData = {
+            statistics: statistics.data,
+            bar: bar.data,
+            pie: pie.data,
+        };
+        res.status(200).send(combinedData)
+    } catch (err) {
+        res.status(400).send({ err: err.message })
+    }
+})
 module.exports = productRoute
