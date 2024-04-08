@@ -20,17 +20,13 @@ productRoute.get('/initialize-database', async (req, res) => {
 
 productRoute.get('/products', async (req, res) => {
     let { month } = req.query
-
     let { search, page = 1, per_page = 10 } = req.query;
-
     if (month < 10) {
         month = `0${month}`
     }
-
     let query = {
         dateOfSale: { $regex: `.*-${month}-.*` },
     };
-
     if (search == "") {
         query = query
     } else if (!isNaN(search)) {
@@ -43,12 +39,9 @@ productRoute.get('/products', async (req, res) => {
             { 'description': { $regex: search, $options: 'i' } },
         ];
     }
-
     try {
         let skip = (page - 1) * per_page;
-
         let record = await ProductModel.find(query)
-
         let result = await ProductModel.find(query)
             .skip(skip)
             .limit(per_page)
@@ -60,27 +53,20 @@ productRoute.get('/products', async (req, res) => {
 })
 
 productRoute.get("/statistics", async (req, res) => {
-
     let { month } = req.query
-
-
     try {
         if (month < 10) {
             month = `0${month}`
         }
-
         let query = {
             dateOfSale: {
                 $regex: `.*-${month}-.*`,
             }
         }
-
         let numOfSold = await ProductModel.find({ ...query, sold: true })
             .count()
-
         let numNotSold = await ProductModel.find({ ...query, sold: false })
             .count()
-
         let resultSold = await ProductModel.aggregate([
             {
                 $match: {
@@ -99,7 +85,6 @@ productRoute.get("/statistics", async (req, res) => {
                 },
             },
         ])
-
         let resultNotSold = await ProductModel.aggregate([
             {
                 $match: {
@@ -118,31 +103,21 @@ productRoute.get("/statistics", async (req, res) => {
                 },
             },
         ])
-
         res.status(200).send({ totalSaleAmtOfMth: (+resultSold[0].total.toFixed(2)) + (+resultNotSold[0].total.toFixed(2)), totalSoldPerMonth: numOfSold, totalNotSoldPerMonth: numNotSold })
-
     } catch (err) {
         res.status(400).send({ err: err.message })
-
     }
 })
 
-
 productRoute.get("/barchart", async (req, res) => {
     let { month } = req.query;
-
     try {
-        // Pad month with leading zero if it's a single digit
         if (month < 10) {
             month = `0${month}`;
         }
-
-        // Regular expression to match any year-month combination
         let query = {
             dateOfSale: { $regex: `.*-${month}-.*` }
         };
-
-        // Initialize an array containing all price ranges with counts set to zero
         let priceRanges = [
             { range: '0 - 100', count: 0 },
             { range: '101 - 200', count: 0 },
@@ -155,8 +130,6 @@ productRoute.get("/barchart", async (req, res) => {
             { range: '801 - 900', count: 0 },
             { range: '901 - above', count: 0 }
         ];
-
-        // Aggregate query to group products by price range
         let result = await ProductModel.aggregate([
             {
                 $match: query
@@ -186,8 +159,6 @@ productRoute.get("/barchart", async (req, res) => {
                 }
             }
         ]);
-
-        // Update counts based on the actual data retrieved
         result.forEach(({ counts }) => {
             counts.flat().forEach(range => {
                 let index = priceRanges.findIndex(item => item.range === range);
@@ -196,8 +167,6 @@ productRoute.get("/barchart", async (req, res) => {
                 }
             });
         });
-
-        // Send the modified priceRanges array as the response
         res.status(200).send(priceRanges);
     } catch (err) {
         res.status(400).send({ err: err.message });
@@ -206,20 +175,14 @@ productRoute.get("/barchart", async (req, res) => {
 
 
 productRoute.get('/piechart', async (req, res) => {
-
-    let { month } = req.query
-
-
+    let { month } = req.query;
     try {
-
         if (month < 10) {
             month = `0${month}`
         }
-
         let query = {
             dateOfSale: { $regex: `.*-${month}-.*` },
         };
-
         let result = await ProductModel.aggregate([
             {
                 $match: query,
@@ -231,31 +194,22 @@ productRoute.get('/piechart', async (req, res) => {
                 },
             },
         ])
-
         let chartData = result.reduce((data, { _id, count }) => {
             data[_id] = count;
             return data;
         }, {});
-
         res.status(200).send({ total: chartData })
     } catch (err) {
         res.status(400).send({ err: err.message })
-
     }
-
-
 })
 
 productRoute.get("/combinedResponse", async (req, res) => {
     let { month } = req.query
-
     try {
         let statistics = await axios.get(`https://roxilermern.onrender.com/product/statistics?month=${month}`)
-
         let bar = await axios.get(`https://roxilermern.onrender.com/product/barchart?month=${month}`)
-
         let pie = await axios.get(`https://roxilermern.onrender.com/product/piechart?month=${month}`)
-
         let combinedData = {
             statistics: statistics.data,
             bar: bar.data,

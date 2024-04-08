@@ -13,7 +13,6 @@ const App = () => {
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch transactions based on selected month and search text
   const fetchTransactions = async () => {
     try {
       let month = 3;

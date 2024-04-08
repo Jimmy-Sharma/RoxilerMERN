@@ -56,7 +56,6 @@ const BarChart = ({ selectedMonth }) => {
         const data = await response.json();
         console.log('data:-', data)
 
-        // Assuming data is an array of objects with 'range' and 'count' properties
         const labels = data.map((item) => item.range);
         const counts = data.map((item) => item.count);
 

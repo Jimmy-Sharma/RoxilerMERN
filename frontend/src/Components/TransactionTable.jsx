@@ -79,10 +79,10 @@ const TransactionTable = ({
                         {transaction.price}
                       </td>
                       <td className="text-sm text-gray-900 font-medium px-6 py-4 whitespace-nowrap">
-                      {transaction.category}
+                        {transaction.category}
                       </td>
                       <td className="text-sm text-gray-900 font-medium px-6 py-4 whitespace-nowrap">
-                      {transaction.sold ? "Yes" : "No"}
+                        {transaction.sold ? "Yes" : "No"}
                       </td>
                       <td className="text-sm text-gray-900 font-medium px-6 py-4 whitespace-nowrap">
                         <img src={transaction.image} alt="" className="rounded-xl" />
@@ -95,7 +95,6 @@ const TransactionTable = ({
           </div>
         </div>
       </div>
-      {/* Pagination buttons */}
       <div className="flex flex-row justify-between font-bold mx-5 my-10">
         <div>Page No: {page}</div>
         <div className="space-x-3">
